@@ -236,6 +236,110 @@
             font-size: 0.7rem;
         }
 
+        /* زر نسخ الرابط */
+        .copy-link-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: rgba(67, 97, 238, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 50px;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-link-btn:hover {
+            background: var(--gradient-primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .copy-link-btn i {
+            font-size: 14px;
+            background: none;
+            color: inherit;
+        }
+
+        /* Toast notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* نافذة منبثقة يدوية للنسخ */
+        .copy-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            backdrop-filter: blur(5px);
+        }
+        .copy-modal-content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            direction: rtl;
+        }
+        .copy-modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid var(--light-3);
+            border-radius: 12px;
+            background: var(--light);
+            color: var(--text-primary);
+            font-size: 14px;
+            text-align: center;
+        }
+        .copy-modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .copy-modal-buttons button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .copy-confirm-btn { background: var(--primary); color: white; }
+        .copy-close-btn { background: var(--light-3); color: var(--text-primary); }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
         /* Lessons */
         .lessons-list {
             display: flex;
@@ -819,6 +923,10 @@
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
+            .copy-link-btn {
+                font-size: 0.7rem;
+                padding: 6px 12px;
+            }
         }
     </style>
 </head>
@@ -831,7 +939,7 @@
                 </button>
                 <div class="logo-container" id="logo-container">
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhdyuIMWOk4qbKO_qCaKOHo859JMs3To_OJjpQ8u5fU0ULewA-AdNp7Izuv9PUOIOTGTUsNM6DTVVbRWKe2OEDTBcHnxOnOrCylsq_V3YhUFPqTkPJ7XOuzWzbCXKW-UnoLEwqsE8XjaHiWPZu2dC_pESia4uQOATzelupKDAUbuO1_jH2003wsgUO0PPiO/s1080/Selah%20Elazhary%20Transperant%20logo.png" alt="Logo" class="logo-img">
-                    <div class="logo"></div>
+                    <div class="logo">سلاح الأزهري</div>
                 </div>
             </div>
           
@@ -917,6 +1025,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <script>
+        // التحقق من وجود Firebase
+        if (typeof firebase === 'undefined') {
+            console.error('Firebase SDK not loaded');
+            alert('حدث خطأ في تحميل النظام. يرجى تحديث الصفحة.');
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyA9QBYL8jlupqXK22TuJqMgKmNRoKsSixM",
             authDomain: "hodor-d0034.firebaseapp.com",
@@ -927,8 +1041,14 @@
             appId: "1:90162176907:web:d50c12d8700166648f458e"
         };
         
-        const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        let app, database;
+        
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+        }
         
         let currentQuestionIndex = 0, score = 0, questions = [], userAnswers = [];
         let selectedYear = '', selectedSection = '', selectedSubject = '', selectedLesson = '', selectedSublesson = '';
@@ -936,6 +1056,7 @@
         let quizStartTime = null;
         let isDarkMode = localStorage.getItem('darkMode') === 'true';
         let currentAd = null;
+        let loadingTimer = null;
         
         const elements = {
             quizContainer: document.getElementById('quiz-container'),
@@ -973,44 +1094,209 @@
             totalQNum: document.getElementById('total-q-num')
         };
         
+        // دالة عرض إشعار منبثق
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.style.backgroundColor = isError ? '#ef4444' : '#10b981';
+            toast.innerHTML = `<i class="fas ${isError ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        
+        // دالة نسخ الرابط المحسنة (تعمل في كل الأحوال)
+        async function copySectionLink(sectionId, sectionName) {
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('section', sectionId);
+            const shareUrl = currentUrl.toString();
+            
+            // محاولة 1: استخدام Clipboard API الحديث
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    showToast(`تم نسخ رابط قسم "${sectionName}" بنجاح!`);
+                    return;
+                } catch (err) {
+                    console.warn('Clipboard API failed:', err);
+                }
+            }
+            
+            // محاولة 2: الطريقة القديمة (execCommand)
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = shareUrl;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                textarea.setSelectionRange(0, 99999);
+                const success = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                if (success) {
+                    showToast(`تم نسخ رابط قسم "${sectionName}" بنجاح!`);
+                    return;
+                }
+            } catch (err) {
+                console.warn('execCommand failed:', err);
+            }
+            
+            // محاولة 3: عرض نافذة منبثقة يدوية (الخيار الأخير)
+            showManualCopyDialog(shareUrl, sectionName);
+        }
+        
+        // عرض نافذة منبثقة للنسخ اليدوي
+        function showManualCopyDialog(url, sectionName) {
+            // إزالة أي نافذة موجودة مسبقاً
+            const existingModal = document.querySelector('.copy-modal');
+            if (existingModal) existingModal.remove();
+            
+            const modal = document.createElement('div');
+            modal.className = 'copy-modal';
+            modal.innerHTML = `
+                <div class="copy-modal-content">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: var(--warning); margin-bottom: 15px; display: block;"></i>
+                    <h3 style="margin-bottom: 10px;">تعذر النسخ التلقائي</h3>
+                    <p style="margin-bottom: 15px; color: var(--text-secondary);">الرجاء نسخ الرابط يدوياً من الأسفل</p>
+                    <input type="text" id="manual-copy-input" value="${url}" readonly>
+                    <div class="copy-modal-buttons">
+                        <button class="copy-confirm-btn" id="manual-copy-confirm"><i class="fas fa-copy"></i> نسخ</button>
+                        <button class="copy-close-btn" id="manual-copy-close"><i class="fas fa-times"></i> إغلاق</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            const input = modal.querySelector('#manual-copy-input');
+            const confirmBtn = modal.querySelector('#manual-copy-confirm');
+            const closeBtn = modal.querySelector('#manual-copy-close');
+            
+            // تحديد النص تلقائياً
+            input.select();
+            input.setSelectionRange(0, 99999);
+            
+            confirmBtn.addEventListener('click', () => {
+                input.select();
+                input.setSelectionRange(0, 99999);
+                const success = document.execCommand('copy');
+                if (success) {
+                    showToast(`تم نسخ رابط قسم "${sectionName}" بنجاح!`);
+                    modal.remove();
+                } else {
+                    showToast('فشل النسخ، يرجى تحديد النص ونسخه يدوياً', true);
+                }
+            });
+            
+            closeBtn.addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            // إغلاق عند الضغط خارج النافذة
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+        }
+        
+        // دالة التحقق من وجود رابط قسم في URL
+        function checkForSectionLink() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sectionId = urlParams.get('section');
+            
+            if (sectionId && database) {
+                // جلب بيانات القسم من Firebase
+                database.ref(`sections/${sectionId}`).once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const section = snapshot.val();
+                        // التحقق من وجود سنة دراسية مرتبطة بالقسم
+                        if (section.grades && section.grades.length > 0) {
+                            selectedYear = section.grades[0];
+                            selectedSection = sectionId;
+                            // إخفاء جميع الحاويات
+                            elements.yearSelectionContainer.style.display = 'none';
+                            elements.sectionSelectionContainer.style.display = 'none';
+                            elements.subjectSelectionContainer.style.display = 'none';
+                            elements.lessonSelectionContainer.style.display = 'none';
+                            elements.sublessonSelectionContainer.style.display = 'none';
+                            elements.headerBackBtn.style.display = 'flex';
+                            // تحميل المواد الخاصة بالقسم مباشرة
+                            loadSubjectsForSection(selectedSection);
+                            showToast(`تم التوجيه إلى قسم ${section.name || ''}`);
+                        } else {
+                            showToast('القسم المطلوب غير متوفر حالياً', true);
+                        }
+                    } else {
+                        showToast('القسم المطلوب غير موجود', true);
+                    }
+                }).catch(error => {
+                    console.error('خطأ في جلب بيانات القسم:', error);
+                    showToast('حدث خطأ في تحميل القسم المطلوب', true);
+                });
+                return true;
+            }
+            return false;
+        }
+        
         function getYearText(year) {
             const years = { prep1: 'الصف الأول الإعدادي', prep2: 'الصف الثاني الإعدادي', prep3: 'الصف الثالث الإعدادي' };
             return years[year] || '';
         }
         
+        function showLoading(show) {
+            if (elements.quizLoading) {
+                elements.quizLoading.style.display = show ? 'flex' : 'none';
+            }
+        }
+        
         function loadData() {
+            if (!database) {
+                console.error('Database not initialized');
+                return;
+            }
+            
             database.ref('sections').once('value', (snapshot) => {
                 sections = [];
                 snapshot.forEach(child => { sections.push({ id: child.key, ...child.val() }); });
-            });
+                // بعد تحميل الأقسام، التحقق من رابط القسم
+                checkForSectionLink();
+            }).catch(error => console.error('Error loading sections:', error));
+            
             database.ref('subjects').once('value', (snapshot) => {
                 subjects = [];
                 snapshot.forEach(child => { subjects.push({ id: child.key, ...child.val() }); });
-            });
+            }).catch(error => console.error('Error loading subjects:', error));
+            
             database.ref('lessons').once('value', (snapshot) => {
                 lessons = [];
                 snapshot.forEach(child => { lessons.push({ id: child.key, ...child.val() }); });
-            });
+            }).catch(error => console.error('Error loading lessons:', error));
+            
             database.ref('sublessons').once('value', (snapshot) => {
                 sublessons = [];
                 snapshot.forEach(child => { sublessons.push({ id: child.key, ...child.val() }); });
-            });
+            }).catch(error => console.error('Error loading sublessons:', error));
+            
             database.ref('ads').once('value', (snapshot) => {
-                if (snapshot.exists()) { currentAd = snapshot.val(); displayAd(); }
-            });
+                if (snapshot.exists()) { 
+                    currentAd = snapshot.val(); 
+                    displayAd(); 
+                }
+            }).catch(error => console.error('Error loading ads:', error));
         }
         
         function displayAd() {
-            if (currentAd && currentAd.status === 'active') {
-                elements.adTitle.textContent = currentAd.title;
-                elements.adDescription.textContent = currentAd.description;
+            if (currentAd && currentAd.status === 'active' && elements.adContainer) {
+                elements.adTitle.textContent = currentAd.title || 'إعلان';
+                elements.adDescription.textContent = currentAd.description || '';
                 elements.adContainer.style.display = 'block';
             }
         }
         
         function loadSectionsForYear(year) {
+            if (!elements.sectionContainer) return;
             elements.sectionContainer.innerHTML = '';
-            const yearSections = sections.filter(s => s.grades?.includes(year));
+            const yearSections = sections.filter(s => s.grades && s.grades.includes(year));
             if (yearSections.length === 0) {
                 elements.sectionContainer.innerHTML = `<div class="no-questions"><i class="fas fa-info-circle"></i><h3>لا توجد أقسام متاحة</h3></div>`;
                 return;
@@ -1019,8 +1305,30 @@
                 const card = document.createElement('div');
                 card.className = 'section-card';
                 card.dataset.section = section.id;
-                card.innerHTML = `<i class="${section.icon || 'fa-folder'}"></i><h3>${section.name}</h3><p>${section.description || ''}</p>`;
-                card.addEventListener('click', () => { selectedSection = section.id; loadSubjectsForSection(selectedSection); });
+                card.innerHTML = `
+                    <i class="${section.icon || 'fa-folder'}"></i>
+                    <h3>${section.name || ''}</h3>
+                    <p>${section.description || ''}</p>
+                    <button class="copy-link-btn" data-section-id="${section.id}" data-section-name="${section.name || ''}">
+                        <i class="fas fa-share-alt"></i> نسخ رابط القسم
+                    </button>
+                `;
+                
+                // إضافة حدث للنقر على البطاقة (باستثناء زر النسخ)
+                card.addEventListener('click', (e) => {
+                    if (!e.target.closest('.copy-link-btn')) {
+                        selectedSection = section.id;
+                        loadSubjectsForSection(selectedSection);
+                    }
+                });
+                
+                // إضافة حدث لزر نسخ الرابط
+                const copyBtn = card.querySelector('.copy-link-btn');
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    copySectionLink(section.id, section.name);
+                });
+                
                 elements.sectionContainer.appendChild(card);
             });
             elements.yearSelectionContainer.style.display = 'none';
@@ -1030,6 +1338,7 @@
         }
         
         function loadSubjectsForSection(sectionId) {
+            if (!elements.subjectContainer) return;
             elements.subjectContainer.innerHTML = '';
             const sectionSubjects = subjects.filter(s => s.sectionId === sectionId);
             if (sectionSubjects.length === 0) {
@@ -1040,7 +1349,7 @@
                 const card = document.createElement('div');
                 card.className = 'subject-card';
                 card.dataset.subject = subject.id;
-                card.innerHTML = `<i class="fas ${subject.icon || 'fa-book'}"></i><h3>${subject.name}</h3><p>${subject.description || ''}</p>`;
+                card.innerHTML = `<i class="fas ${subject.icon || 'fa-book'}"></i><h3>${subject.name || ''}</h3><p>${subject.description || ''}</p>`;
                 card.addEventListener('click', () => { selectedSubject = subject.id; loadLessonsForSubject(selectedSubject); });
                 elements.subjectContainer.appendChild(card);
             });
@@ -1050,6 +1359,7 @@
         }
         
         function loadLessonsForSubject(subjectId) {
+            if (!elements.lessonContainer) return;
             elements.lessonContainer.innerHTML = '';
             const subjectLessons = lessons.filter(l => l.subjectId === subjectId).sort((a,b) => (a.order||999) - (b.order||999));
             if (subjectLessons.length === 0) {
@@ -1067,7 +1377,7 @@
                 card.innerHTML = `
                     <div class="lesson-icon"><i class="fas ${lesson.icon || 'fa-book-open'}"></i></div>
                     <div class="lesson-content">
-                        <h3>${lesson.name}</h3>
+                        <h3>${lesson.name || ''}</h3>
                         <p>${lesson.description || 'اختبارات متنوعة لهذا الدرس'}</p>
                     </div>
                     <div class="lesson-number">${String(index + 1).padStart(2, '0')}</div>
@@ -1082,6 +1392,7 @@
         }
         
         function loadSublessonsForLesson(lessonId) {
+            if (!elements.sublessonContainer) return;
             elements.sublessonContainer.innerHTML = '';
             const lessonSublessons = sublessons.filter(s => s.lessonId === lessonId).sort((a,b) => (a.order||999) - (b.order||999));
             if (lessonSublessons.length === 0) {
@@ -1096,7 +1407,7 @@
                 const card = document.createElement('div');
                 card.className = 'sublesson-card';
                 card.dataset.sublesson = sublesson.id;
-                card.innerHTML = `<i class="fas ${sublesson.icon || 'fa-folder'}"></i><h3>${sublesson.name}</h3><p>${sublesson.description || ''}</p>`;
+                card.innerHTML = `<i class="fas ${sublesson.icon || 'fa-folder'}"></i><h3>${sublesson.name || ''}</h3><p>${sublesson.description || ''}</p>`;
                 card.addEventListener('click', () => {
                     selectedSublesson = sublesson.id;
                     setTimeout(() => {
@@ -1113,8 +1424,21 @@
         }
         
         function loadQuestions() {
-            elements.quizLoading.style.display = 'flex';
+            if (!database) {
+                showNoQuestionsMessage();
+                return;
+            }
+            
+            showLoading(true);
+            
+            // تعيين مهلة للتحميل
+            loadingTimer = setTimeout(() => {
+                showLoading(false);
+                showNoQuestionsMessage();
+            }, 15000);
+            
             database.ref('questions').once('value', (snapshot) => {
+                clearTimeout(loadingTimer);
                 questions = [];
                 snapshot.forEach(child => {
                     const q = child.val();
@@ -1126,9 +1450,14 @@
                         questions.push(q);
                     }
                 });
-                elements.quizLoading.style.display = 'none';
-                if (questions.length) startQuiz();
+                showLoading(false);
+                if (questions.length > 0) startQuiz();
                 else showNoQuestionsMessage();
+            }).catch(error => {
+                clearTimeout(loadingTimer);
+                showLoading(false);
+                console.error('Error loading questions:', error);
+                showNoQuestionsMessage();
             });
         }
         
@@ -1156,7 +1485,7 @@
             
             let html = `
                 <div class="question-card">
-                    <div class="question-text">${q.text}</div>
+                    <div class="question-text">${escapeHtml(q.text || '')}</div>
             `;
             
             if (q.type === 'mcq') {
@@ -1169,14 +1498,14 @@
                         html += `
                             <div class="option-btn ${isSelected ? 'selected' : ''}" data-answer="${i}">
                                 <div class="option-letter">${letters[i-1]}</div>
-                                <div class="option-text">${opt}</div>
+                                <div class="option-text">${escapeHtml(opt)}</div>
                                 <div class="option-check"><i class="fas fa-check"></i></div>
                             </div>
                         `;
                     }
                 }
                 html += `</div>`;
-            } else {
+            } else if (q.type === 'truefalse') {
                 html += `
                     <div class="tf-options">
                         <div class="tf-btn ${currentAnswer === 'true' ? 'selected' : ''}" data-answer="true">
@@ -1200,7 +1529,7 @@
                         userAnswers[currentQuestionIndex] = opt.dataset.answer;
                     });
                 });
-            } else {
+            } else if (q.type === 'truefalse') {
                 document.querySelectorAll('.tf-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('selected'));
@@ -1238,7 +1567,7 @@
                 const userAns = userAnswers[idx];
                 const isCorrect = userAns === q.correctAnswer;
                 if (isCorrect) score++;
-                feedbackHTML += `<li><strong>السؤال ${idx + 1}:</strong> ${q.text}<br><span style="color: ${isCorrect ? 'green' : 'red'}">إجابتك: ${formatAnswer(q, userAns)} - ${isCorrect ? '✓ صحيح' : '✗ خطأ (الإجابة: ' + formatAnswer(q, q.correctAnswer) + ')'}</span></li>`;
+                feedbackHTML += `<li><strong>السؤال ${idx + 1}:</strong> ${escapeHtml(q.text || '')}<br><span style="color: ${isCorrect ? 'green' : 'red'}">إجابتك: ${formatAnswer(q, userAns)} - ${isCorrect ? '✓ صحيح' : '✗ خطأ (الإجابة: ' + formatAnswer(q, q.correctAnswer) + ')'}</span></li>`;
             });
             feedbackHTML += '</ul>';
             
@@ -1255,12 +1584,14 @@
             elements.timeTakenDisplay.textContent = timeTaken;
             elements.feedbackDisplay.innerHTML = feedbackHTML;
             
-            database.ref('quizResults').push({
-                score, totalQuestions: questions.length, percentage, timeTaken,
-                year: selectedYear, section: selectedSection, subject: selectedSubject,
-                lesson: selectedLesson, sublesson: selectedSublesson,
-                timestamp: new Date().toISOString(), userName: 'زائر'
-            });
+            if (database) {
+                database.ref('quizResults').push({
+                    score, totalQuestions: questions.length, percentage, timeTaken,
+                    year: selectedYear, section: selectedSection, subject: selectedSubject,
+                    lesson: selectedLesson, sublesson: selectedSublesson,
+                    timestamp: new Date().toISOString(), userName: 'زائر'
+                }).catch(error => console.error('Error saving results:', error));
+            }
         }
         
         function formatAnswer(q, ans) {
@@ -1284,47 +1615,121 @@
         }
         
         function showNoQuestionsMessage() {
-            elements.questionContainer.innerHTML = `<div class="no-questions"><i class="fas fa-info-circle"></i><h3>لا توجد إختبارات متاحة حالياً</h3></div>`;
+            if (elements.questionContainer) {
+                elements.questionContainer.innerHTML = `<div class="no-questions"><i class="fas fa-info-circle"></i><h3>لا توجد إختبارات متاحة حالياً</h3><p>يرجى المحاولة مرة أخرى لاحقاً</p></div>`;
+            }
+            elements.quizContainer.style.display = 'block';
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
         
         function goBack() {
-            if (elements.quizContainer.style.display === 'block') {
+            // إزالة معامل الرابط من URL عند الرجوع
+            const url = new URL(window.location.href);
+            if (url.searchParams.has('section')) {
+                url.searchParams.delete('section');
+                window.history.pushState({}, '', url);
+            }
+            
+            if (elements.quizContainer && elements.quizContainer.style.display === 'block') {
                 elements.quizContainer.style.display = 'none';
-                if (selectedSublesson) { elements.sublessonSelectionContainer.style.display = 'block'; selectedSublesson = ''; }
-                else if (selectedLesson) { elements.lessonSelectionContainer.style.display = 'block'; elements.sublessonSelectionContainer.style.display = 'none'; selectedLesson = ''; }
-                else if (selectedSubject) { elements.subjectSelectionContainer.style.display = 'block'; elements.lessonSelectionContainer.style.display = 'none'; selectedSubject = ''; }
-                else if (selectedSection) { elements.sectionSelectionContainer.style.display = 'block'; elements.subjectSelectionContainer.style.display = 'none'; selectedSection = ''; }
-                else { elements.yearSelectionContainer.style.display = 'grid'; elements.sectionSelectionContainer.style.display = 'none'; elements.headerBackBtn.style.display = 'none'; }
-            } else if (elements.sublessonSelectionContainer.style.display === 'block') { elements.sublessonSelectionContainer.style.display = 'none'; elements.lessonSelectionContainer.style.display = 'block'; selectedSublesson = ''; }
-            else if (elements.lessonSelectionContainer.style.display === 'block') { elements.lessonSelectionContainer.style.display = 'none'; elements.subjectSelectionContainer.style.display = 'block'; selectedLesson = ''; }
-            else if (elements.subjectSelectionContainer.style.display === 'block') { elements.subjectSelectionContainer.style.display = 'none'; elements.sectionSelectionContainer.style.display = 'block'; selectedSubject = ''; }
-            else if (elements.sectionSelectionContainer.style.display === 'block') { elements.sectionSelectionContainer.style.display = 'none'; elements.yearSelectionContainer.style.display = 'grid'; elements.headerBackBtn.style.display = 'none'; selectedSection = ''; }
+                if (selectedSublesson && elements.sublessonSelectionContainer) { 
+                    elements.sublessonSelectionContainer.style.display = 'block'; 
+                    selectedSublesson = ''; 
+                }
+                else if (selectedLesson && elements.lessonSelectionContainer) { 
+                    elements.lessonSelectionContainer.style.display = 'block'; 
+                    if (elements.sublessonSelectionContainer) elements.sublessonSelectionContainer.style.display = 'none'; 
+                    selectedLesson = ''; 
+                }
+                else if (selectedSubject && elements.subjectSelectionContainer) { 
+                    elements.subjectSelectionContainer.style.display = 'block'; 
+                    if (elements.lessonSelectionContainer) elements.lessonSelectionContainer.style.display = 'none'; 
+                    selectedSubject = ''; 
+                }
+                else if (selectedSection && elements.sectionSelectionContainer) { 
+                    elements.sectionSelectionContainer.style.display = 'block'; 
+                    if (elements.subjectSelectionContainer) elements.subjectSelectionContainer.style.display = 'none'; 
+                    selectedSection = ''; 
+                }
+                else if (elements.yearSelectionContainer) { 
+                    elements.yearSelectionContainer.style.display = 'grid'; 
+                    if (elements.sectionSelectionContainer) elements.sectionSelectionContainer.style.display = 'none'; 
+                    if (elements.headerBackBtn) elements.headerBackBtn.style.display = 'none'; 
+                }
+            } else if (elements.sublessonSelectionContainer && elements.sublessonSelectionContainer.style.display === 'block') { 
+                elements.sublessonSelectionContainer.style.display = 'none'; 
+                if (elements.lessonSelectionContainer) elements.lessonSelectionContainer.style.display = 'block'; 
+                selectedSublesson = ''; 
+            }
+            else if (elements.lessonSelectionContainer && elements.lessonSelectionContainer.style.display === 'block') { 
+                elements.lessonSelectionContainer.style.display = 'none'; 
+                if (elements.subjectSelectionContainer) elements.subjectSelectionContainer.style.display = 'block'; 
+                selectedLesson = ''; 
+            }
+            else if (elements.subjectSelectionContainer && elements.subjectSelectionContainer.style.display === 'block') { 
+                elements.subjectSelectionContainer.style.display = 'none'; 
+                if (elements.sectionSelectionContainer) elements.sectionSelectionContainer.style.display = 'block'; 
+                selectedSubject = ''; 
+            }
+            else if (elements.sectionSelectionContainer && elements.sectionSelectionContainer.style.display === 'block') { 
+                elements.sectionSelectionContainer.style.display = 'none'; 
+                if (elements.yearSelectionContainer) elements.yearSelectionContainer.style.display = 'grid'; 
+                if (elements.headerBackBtn) elements.headerBackBtn.style.display = 'none'; 
+                selectedSection = ''; 
+            }
         }
         
         function setupEventListeners() {
-            elements.yearCards.forEach(card => {
-                card.addEventListener('click', function() {
-                    selectedYear = this.dataset.year;
-                    loadSectionsForYear(selectedYear);
+            if (elements.yearCards) {
+                elements.yearCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        selectedYear = this.dataset.year;
+                        loadSectionsForYear(selectedYear);
+                    });
                 });
-            });
-            elements.themeToggle.addEventListener('click', () => {
-                isDarkMode = !isDarkMode;
-                if (isDarkMode) { document.documentElement.setAttribute('data-theme', 'dark'); elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>'; localStorage.setItem('darkMode', 'true'); }
-                else { document.documentElement.removeAttribute('data-theme'); elements.themeToggle.innerHTML = '<i class="fas fa-moon"></i>'; localStorage.setItem('darkMode', 'false'); }
-            });
-            elements.headerBackBtn.addEventListener('click', goBack);
-            elements.nextBtn.addEventListener('click', nextQuestion);
-            elements.prevBtn.addEventListener('click', prevQuestion);
-            elements.submitBtn.addEventListener('click', submitQuiz);
-            elements.restartBtn.addEventListener('click', restartQuiz);
-            elements.logoContainer.addEventListener('click', () => window.location.reload());
-            elements.adClose.addEventListener('click', () => elements.adContainer.style.display = 'none');
-            elements.adAction.addEventListener('click', () => { if(currentAd?.url) window.open(currentAd.url, '_blank'); });
+            }
+            
+            if (elements.themeToggle) {
+                elements.themeToggle.addEventListener('click', () => {
+                    isDarkMode = !isDarkMode;
+                    if (isDarkMode) { 
+                        document.documentElement.setAttribute('data-theme', 'dark'); 
+                        elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>'; 
+                        localStorage.setItem('darkMode', 'true'); 
+                    }
+                    else { 
+                        document.documentElement.removeAttribute('data-theme'); 
+                        elements.themeToggle.innerHTML = '<i class="fas fa-moon"></i>'; 
+                        localStorage.setItem('darkMode', 'false'); 
+                    }
+                });
+            }
+            
+            if (elements.headerBackBtn) elements.headerBackBtn.addEventListener('click', goBack);
+            if (elements.nextBtn) elements.nextBtn.addEventListener('click', nextQuestion);
+            if (elements.prevBtn) elements.prevBtn.addEventListener('click', prevQuestion);
+            if (elements.submitBtn) elements.submitBtn.addEventListener('click', submitQuiz);
+            if (elements.restartBtn) elements.restartBtn.addEventListener('click', restartQuiz);
+            if (elements.logoContainer) elements.logoContainer.addEventListener('click', () => window.location.reload());
+            if (elements.adClose) elements.adClose.addEventListener('click', () => { if(elements.adContainer) elements.adContainer.style.display = 'none'; });
+            if (elements.adAction) {
+                elements.adAction.addEventListener('click', () => { 
+                    if(currentAd && currentAd.url) window.open(currentAd.url, '_blank'); 
+                });
+            }
         }
         
         function init() {
-            if (isDarkMode) { document.documentElement.setAttribute('data-theme', 'dark'); elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>'; }
+            if (isDarkMode) { 
+                document.documentElement.setAttribute('data-theme', 'dark'); 
+                if (elements.themeToggle) elements.themeToggle.innerHTML = '<i class="fas fa-sun"></i>'; 
+            }
             setupEventListeners();
             loadData();
         }
