@@ -95,6 +95,37 @@
         .header-left { display: flex; align-items: center; gap: 20px; }
         .header-right { display: flex; align-items: center; gap: 12px; }
 
+        .header-social-icons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .header-social-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            color: var(--primary);
+        }
+
+        .header-social-icon:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .header-social-icon.whatsapp:hover { background: #25D366; color: white; }
+        .header-social-icon.facebook:hover { background: #1877F2; color: white; }
+        .header-social-icon.youtube:hover { background: #FF0000; color: white; }
+        .header-social-icon.telegram:hover { background: #0088cc; color: white; }
+
         .logo-container {
             display: flex;
             align-items: center;
@@ -124,7 +155,7 @@
 
         /* Year Selection */
         .year-selection {
-            display: grid;
+            display: none;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
@@ -235,6 +266,38 @@
         .section-card p, .subject-card p, .sublesson-card p {
             color: var(--text-secondary);
             font-size: 0.7rem;
+        }
+
+        .subject-selection-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            padding: 0 10px;
+        }
+
+        .subject-selection-logo {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            object-fit: contain;
+            background: var(--light-2);
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .subject-selection-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .subject-selection-year {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin: 0;
         }
 
         /* زر نسخ الرابط */
@@ -841,69 +904,92 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: white;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 3000;
-            color: white;
+            color: var(--text-primary);
+            padding: 20px;
         }
 
-        .scientific-loader {
-            width: 100px;
-            height: 100px;
-            position: relative;
-            margin-bottom: 25px;
+        .splash-logo {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            background: #ffffff;
+            margin-bottom: 24px;
         }
 
-        .atom-core {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 25px;
-            height: 25px;
-            background: radial-gradient(circle, #4cc9f0 0%, #4361ee 100%);
-            border-radius: 50%;
-            animation: pulseCore 2s infinite;
+        .loading-text {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            font-weight: 700;
+            color: var(--text-primary);
         }
 
-        .electron-orbit {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
+        .loading-subtext {
+            font-size: 0.9rem;
+            opacity: 0.72;
+            color: var(--text-secondary);
         }
 
-        .electron-orbit:nth-child(1) { width: 70px; height: 70px; }
-        .electron-orbit:nth-child(2) { width: 95px; height: 95px; transform: translate(-50%, -50%) rotate(45deg); }
-        .electron-orbit:nth-child(3) { width: 45px; height: 45px; transform: translate(-50%, -50%) rotate(30deg); }
+        .loader-dots {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 14px;
+        }
 
-        .electron {
-            position: absolute;
+        .loader-dot {
             width: 10px;
             height: 10px;
-            background: radial-gradient(circle, #f8961e 0%, #f9c74f 100%);
+            background: var(--primary);
             border-radius: 50%;
+            animation: pulseDot 1.2s infinite ease-in-out;
         }
 
-        .electron-orbit:nth-child(1) .electron { top: -5px; left: 50%; margin-left: -5px; animation: orbit1 3s linear infinite; }
-        .electron-orbit:nth-child(2) .electron { top: -5px; right: 50%; margin-right: -5px; animation: orbit2 2.5s linear infinite; }
-        .electron-orbit:nth-child(3) .electron { bottom: -5px; left: 50%; margin-left: -5px; animation: orbit3 4s linear infinite; }
+        .loader-dot:nth-child(2) { animation-delay: 0.15s; }
+        .loader-dot:nth-child(3) { animation-delay: 0.3s; }
 
-        .loading-text { font-size: 1rem; margin-bottom: 8px; font-weight: 600; }
-        .loading-subtext { font-size: 0.75rem; opacity: 0.8; }
-
-        @keyframes pulseCore {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(0.8); opacity: 0.65; }
+            50% { transform: scale(1.2); opacity: 1; }
         }
         @keyframes orbit1 { 0% { transform: rotate(0deg) translate(35px) rotate(0deg); } 100% { transform: rotate(360deg) translate(35px) rotate(-360deg); } }
         @keyframes orbit2 { 0% { transform: rotate(0deg) translate(47.5px) rotate(0deg); } 100% { transform: rotate(360deg) translate(47.5px) rotate(-360deg); } }
         @keyframes orbit3 { 0% { transform: rotate(0deg) translate(22.5px) rotate(0deg); } 100% { transform: rotate(360deg) translate(22.5px) rotate(-360deg); } }
+
+        .social-icons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .icon {
+            font-size: 40px;
+            text-decoration: none;
+            transition: transform 0.3s, opacity 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon:hover {
+            transform: scale(1.2);
+            opacity: 0.8;
+        }
+
+        .whatsapp { color: #25D366; }
+        .facebook { color: #1877F2; }
+        .youtube { color: #FF0000; }
+        .telegram { color: #0088cc; }
 
         @media (max-width: 480px) {
             .section-grid, .subjects-grid, .sublesson-grid {
@@ -935,9 +1021,6 @@
     <div class="container">
         <header>
             <div class="header-left">
-                <button class="header-back-btn" id="header-back-btn" style="display: none;">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
                 <div class="logo-container" id="logo-container">
                     <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhdyuIMWOk4qbKO_qCaKOHo859JMs3To_OJjpQ8u5fU0ULewA-AdNp7Izuv9PUOIOTGTUsNM6DTVVbRWKe2OEDTBcHnxOnOrCylsq_V3YhUFPqTkPJ7XOuzWzbCXKW-UnoLEwqsE8XjaHiWPZu2dC_pESia4uQOATzelupKDAUbuO1_jH2003wsgUO0PPiO/s1080/Selah%20Elazhary%20Transperant%20logo.png" alt="Logo" class="logo-img">
                    
@@ -945,6 +1028,12 @@
             </div>
           
             <div class="header-right">
+                <div class="header-social-icons">
+                    <a href="https://whatsapp.com/channel/0029Vb6rrG2LdQehV1jBg22A" target="_blank" class="header-social-icon whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.facebook.com/share/1EvrxveXPn/" target="_blank" class="header-social-icon facebook" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="https://youtube.com/@selahalazhary?si=XU1yeb9L40NZr9p8" target="_blank" class="header-social-icon youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="https://t.me/alazher2026" target="_blank" class="header-social-icon telegram" title="Telegram"><i class="fab fa-telegram"></i></a>
+                </div>
                 <button class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></button>
             </div>
         </header>
@@ -968,7 +1057,11 @@
         </div>
         
         <div id="subject-selection-container" class="card" style="display: none;">
-            <h2 class="text-center mb-3">اختر المادة الدراسية</h2>
+            <div class="subject-selection-header">
+                <img id="subject-selection-logo" class="subject-selection-logo" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhdyuIMWOk4qbKO_qCaKOHo859JMs3To_OJjpQ8u5fU0ULewA-AdNp7Izuv9PUOIOTGTUsNM6DTVVbRWKe2OEDTBcHnxOnOrCylsq_V3YhUFPqTkPJ7XOuzWzbCXKW-UnoLEwqsE8XjaHiWPZu2dC_pESia4uQOATzelupKDAUbuO1_jH2003wsgUO0PPiO/s1080/Selah%20Elazhary%20Transperant%20logo.png" alt="Logo">
+                <h2 id="subject-selection-title" class="text-center mb-2">اختر المادة الدراسية</h2>
+                <p id="subject-selection-year" class="subject-selection-year">اسم الفصل الدراسي</p>
+            </div>
             <div class="subjects-grid" id="subject-container"></div>
         </div>
         
@@ -984,14 +1077,14 @@
         
         <div class="quiz-container" id="quiz-container" style="display: none;">
             <div class="loading-overlay" id="quiz-loading">
-                <div class="scientific-loader">
-                    <div class="atom-core"></div>
-                    <div class="electron-orbit"><div class="electron"></div></div>
-                    <div class="electron-orbit"><div class="electron"></div></div>
-                    <div class="electron-orbit"><div class="electron"></div></div>
-                </div>
-                <div class="loading-text">جاري تحميل الإختبارات<span class="loading-dots"></span></div>
+                <img class="splash-logo" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhdyuIMWOk4qbKO_qCaKOHo859JMs3To_OJjpQ8u5fU0ULewA-AdNp7Izuv9PUOIOTGTUsNM6DTVVbRWKe2OEDTBcHnxOnOrCylsq_V3YhUFPqTkPJ7XOuzWzbCXKW-UnoLEwqsE8XjaHiWPZu2dC_pESia4uQOATzelupKDAUbuO1_jH2003wsgUO0PPiO/s1080/Selah%20Elazhary%20Transperant%20logo.png" alt="Logo">
+                <div class="loading-text">جاري تحميل الإختبارات</div>
                 <div class="loading-subtext">نظام إختبارات سلاح الأزهري</div>
+                <div class="loader-dots">
+                    <span class="loader-dot"></span>
+                    <span class="loader-dot"></span>
+                    <span class="loader-dot"></span>
+                </div>
             </div>
             <div class="quiz-header">
                 <h2 id="quiz-title">اختبار سلاح الأزهري</h2>
@@ -1011,6 +1104,12 @@
         </div>
         
         <div class="results-container" id="results-container">
+            <div class="social-icons">
+                <a href="https://whatsapp.com/channel/0029Vb6rrG2LdQehV1jBg22A" target="_blank" class="icon whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://www.facebook.com/share/1EvrxveXPn/" target="_blank" class="icon facebook" title="Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="https://youtube.com/@selahalazhary?si=XU1yeb9L40NZr9p8" target="_blank" class="icon youtube" title="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="https://t.me/alazher2026" target="_blank" class="icon telegram" title="Telegram"><i class="fab fa-telegram"></i></a>
+            </div>
             <h2>نتيجة الاختبار</h2>
             <div class="stats-grid">
                 <div class="stat-box"><div class="stat-value" id="score-value">0</div><div class="stat-label">الدرجة</div></div>
@@ -1058,6 +1157,7 @@
         let isDarkMode = localStorage.getItem('darkMode') === 'true';
         let currentAd = null;
         let loadingTimer = null;
+        const QUESTIONS_CACHE_KEY = 'azharQuestionsCache';
         
         const elements = {
             quizContainer: document.getElementById('quiz-container'),
@@ -1076,6 +1176,9 @@
             yearSelectionContainer: document.getElementById('year-selection-container'),
             sectionSelectionContainer: document.getElementById('section-selection-container'),
             subjectSelectionContainer: document.getElementById('subject-selection-container'),
+            subjectSelectionTitle: document.getElementById('subject-selection-title'),
+            subjectSelectionYear: document.getElementById('subject-selection-year'),
+            subjectSelectionLogo: document.getElementById('subject-selection-logo'),
             lessonSelectionContainer: document.getElementById('lesson-selection-container'),
             sublessonSelectionContainer: document.getElementById('sublesson-selection-container'),
             yearCards: document.querySelectorAll('.year-card'),
@@ -1220,7 +1323,6 @@
                             elements.subjectSelectionContainer.style.display = 'none';
                             elements.lessonSelectionContainer.style.display = 'none';
                             elements.sublessonSelectionContainer.style.display = 'none';
-                            elements.headerBackBtn.style.display = 'flex';
                             // تحميل المواد الخاصة بالقسم مباشرة
                             loadSubjectsForSection(selectedSection);
                             showToast(`تم التوجيه إلى قسم ${section.name || ''}`);
@@ -1346,6 +1448,18 @@
                 elements.subjectContainer.innerHTML = `<div class="no-questions"><i class="fas fa-info-circle"></i><h3>لا توجد مواد متاحة</h3></div>`;
                 return;
             }
+            const section = sections.find(sec => sec.id === sectionId) || {};
+            const yearName = getYearText(selectedYear);
+            if (elements.subjectSelectionTitle) {
+                elements.subjectSelectionTitle.textContent = section.name || 'القسم الرئيسي';
+            }
+            if (elements.subjectSelectionYear) {
+                elements.subjectSelectionYear.textContent = yearName || 'اسم الفصل الدراسي';
+            }
+            if (elements.subjectSelectionLogo) {
+                elements.subjectSelectionLogo.alt = section.name || 'Logo';
+                elements.subjectSelectionLogo.src = elements.logoContainer ? elements.logoContainer.querySelector('img')?.src || elements.subjectSelectionLogo.src : elements.subjectSelectionLogo.src;
+            }
             sectionSubjects.forEach(subject => {
                 const card = document.createElement('div');
                 card.className = 'subject-card';
@@ -1429,37 +1543,63 @@
                 showNoQuestionsMessage();
                 return;
             }
-            
+
             showLoading(true);
-            
+
+            const cachedData = localStorage.getItem(QUESTIONS_CACHE_KEY);
+            if (cachedData) {
+                try {
+                    const cachedQuestions = JSON.parse(cachedData);
+                    if (Array.isArray(cachedQuestions) && cachedQuestions.length > 0) {
+                        filterQuestions(cachedQuestions);
+                        return;
+                    }
+                } catch (error) {
+                    localStorage.removeItem(QUESTIONS_CACHE_KEY);
+                }
+            }
+
             // تعيين مهلة للتحميل
             loadingTimer = setTimeout(() => {
                 showLoading(false);
                 showNoQuestionsMessage();
             }, 15000);
-            
+
             database.ref('questions').once('value', (snapshot) => {
                 clearTimeout(loadingTimer);
-                questions = [];
+                const allQuestions = [];
                 snapshot.forEach(child => {
                     const q = child.val();
                     q.id = child.key;
-                    if (q.year === selectedYear && q.section === selectedSection && 
-                        (!selectedSubject || q.subject === selectedSubject) &&
-                        (!selectedLesson || q.lesson === selectedLesson) &&
-                        (!selectedSublesson || q.sublesson === selectedSublesson)) {
-                        questions.push(q);
-                    }
+                    allQuestions.push(q);
                 });
-                showLoading(false);
-                if (questions.length > 0) startQuiz();
-                else showNoQuestionsMessage();
+
+                try {
+                    localStorage.setItem(QUESTIONS_CACHE_KEY, JSON.stringify(allQuestions));
+                } catch (error) {
+                    console.warn('Failed to cache questions locally:', error);
+                }
+
+                filterQuestions(allQuestions);
             }).catch(error => {
                 clearTimeout(loadingTimer);
                 showLoading(false);
                 console.error('Error loading questions:', error);
                 showNoQuestionsMessage();
             });
+        }
+
+        function filterQuestions(allQuestions) {
+            clearTimeout(loadingTimer);
+            questions = allQuestions.filter(q =>
+                q.year === selectedYear && q.section === selectedSection &&
+                (!selectedSubject || q.subject === selectedSubject) &&
+                (!selectedLesson || q.lesson === selectedLesson) &&
+                (!selectedSublesson || q.sublesson === selectedSublesson)
+            );
+            showLoading(false);
+            if (questions.length > 0) startQuiz();
+            else showNoQuestionsMessage();
         }
         
         function startQuiz() {
@@ -1717,7 +1857,6 @@
             if (elements.prevBtn) elements.prevBtn.addEventListener('click', prevQuestion);
             if (elements.submitBtn) elements.submitBtn.addEventListener('click', submitQuiz);
             if (elements.restartBtn) elements.restartBtn.addEventListener('click', restartQuiz);
-            if (elements.logoContainer) elements.logoContainer.addEventListener('click', () => window.location.reload());
             if (elements.adClose) elements.adClose.addEventListener('click', () => { if(elements.adContainer) elements.adContainer.style.display = 'none'; });
             if (elements.adAction) {
                 elements.adAction.addEventListener('click', () => { 
