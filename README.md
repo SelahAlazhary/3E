@@ -120,6 +120,7 @@
 | 📘 فيسبوك | <https://www.facebook.com/share/1EvrxveXPn/> |
 | ▶️ يوتيوب | <https://youtube.com/@selahalazhary> |
 | ✈️ تيليجرام | <https://t.me/alazher2026> |
+| 🎵 تيك توك | <https://tiktok.com/@selahelazhary> |
 
 **مشكلات شائعة وحلولها السريعة:**
 
