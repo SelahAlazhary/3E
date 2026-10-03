@@ -617,6 +617,10 @@ function submitQuiz() {
             timestamp: new Date().toISOString(), userName: 'زائر'
         }).catch(error => console.error('Error saving results:', error));
     }
+    trackStudentActivity('quiz_complete', {
+        score, percentage, timeTaken, year: selectedYear, section: selectedSection, subject: selectedSubject,
+        lesson: selectedLesson, sublesson: selectedSublesson
+    });
 }
 
 function formatAnswer(q, ans) {
@@ -895,6 +899,31 @@ if (LOCKED_SECTION) {
         if (!document.documentElement.classList.contains('link-ready')) lockFail('تعذّر تحميل القسم، حدّث الصفحة وحاول مرة أخرى');
     }, 20000);
 }
+
+
+
+// ===== تسجيل النشاط (الزيارات وإنهاء الاختبارات) في قاعدة البيانات =====
+function getStudentId() {
+    let id = null;
+    try { id = localStorage.getItem('userId'); } catch (e) {}
+    if (!id) {
+        id = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        try { localStorage.setItem('userId', id); } catch (e) {}
+    }
+    return id;
+}
+
+function trackStudentActivity(action, extra) {
+    try {
+        if (typeof database === 'undefined' || !database) return;
+        const record = Object.assign({ userId: getStudentId(), timestamp: new Date().toISOString(), action: action }, extra || {});
+        database.ref('userActivities').push(record).catch(err => console.error('Error saving activity:', err));
+    } catch (error) {
+        console.error('خطأ في تسجيل النشاط:', error);
+    }
+}
+
+trackStudentActivity('visit', { page: window.location.href });
 
 // ===== بحث داخل الدروس =====
 (function setupLessonSearch() {
