@@ -1858,3 +1858,17 @@ header img, .brand-bar img { pointer-events: none; }
 @media print { html, body { display: none !important; } }
 
 .container input, .container textarea, input, textarea { -webkit-user-select: text !important; user-select: text !important; }
+
+/* ---- أيقونات iOS (Ionicons): السهم الجانبي ---- */
+i[data-lc] > svg { stroke-linecap: round; stroke-linejoin: round; }
+.subject-card::after, .lesson-card::after, .section-card::after, .sublesson-card::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M328 112L184 256l144 144' fill='none' stroke='%234361ee' stroke-width='52' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important; background-size: 15px !important;
+}
+.subject-card:hover::after, .lesson-card:hover::after, .section-card:hover::after, .sublesson-card:hover::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M328 112L184 256l144 144' fill='none' stroke='%23ffffff' stroke-width='52' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+}
+@media (hover: none) {
+    .subject-card:hover::after, .lesson-card:hover::after, .section-card:hover::after, .sublesson-card:hover::after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M328 112L184 256l144 144' fill='none' stroke='%234361ee' stroke-width='52' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+    }
+}
