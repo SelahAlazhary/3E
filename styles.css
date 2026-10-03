@@ -1872,3 +1872,11 @@ i[data-lc] > svg { stroke-linecap: round; stroke-linejoin: round; }
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath d='M328 112L184 256l144 144' fill='none' stroke='%234361ee' stroke-width='52' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
     }
 }
+
+/* ---- إصلاح تكرار أيقونة السهم داخل الدائرة (كان يظهر 4 أسهم) ---- */
+.subject-card::after, .lesson-card::after, .section-card::after, .sublesson-card::after,
+.subject-card:hover::after, .lesson-card:hover::after, .section-card:hover::after, .sublesson-card:hover::after,
+.subject-card:active::after, .lesson-card:active::after, .section-card:active::after, .sublesson-card:active::after {
+    background-repeat: no-repeat !important; background-position: center !important; background-size: 14px 14px !important;
+    width: 34px; height: 34px; border-radius: 50%;
+}
