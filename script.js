@@ -245,6 +245,7 @@ function loadData() {
     database.ref('subjects').once('value', (snapshot) => {
         subjects = [];
         snapshot.forEach(child => { subjects.push({ id: child.key, ...child.val() }); });
+        subjects.sort((a, b) => (parseInt(a.order, 10) || 9999) - (parseInt(b.order, 10) || 9999));
     }).catch(error => console.error('Error loading subjects:', error));
 
     database.ref('lessons').once('value', (snapshot) => {
@@ -353,7 +354,7 @@ function loadSubjectsForSection(sectionId) {
 function loadLessonsForSubject(subjectId) {
     if (!elements.lessonContainer) return;
     elements.lessonContainer.innerHTML = '';
-    const subjectLessons = lessons.filter(l => l.subjectId === subjectId).sort((a,b) => (a.order||999) - (b.order||999));
+    const subjectLessons = lessons.filter(l => l.subjectId === subjectId).sort((a,b) => (parseInt(a.order, 10) || 9999) - (parseInt(b.order, 10) || 9999));
     if (subjectLessons.length === 0) {
         setTimeout(() => {
             elements.subjectSelectionContainer.style.display = 'none';
@@ -386,7 +387,7 @@ function loadLessonsForSubject(subjectId) {
 function loadSublessonsForLesson(lessonId) {
     if (!elements.sublessonContainer) return;
     elements.sublessonContainer.innerHTML = '';
-    const lessonSublessons = sublessons.filter(s => s.lessonId === lessonId).sort((a,b) => (a.order||999) - (b.order||999));
+    const lessonSublessons = sublessons.filter(s => s.lessonId === lessonId).sort((a,b) => (parseInt(a.order, 10) || 9999) - (parseInt(b.order, 10) || 9999));
     if (lessonSublessons.length === 0) {
         setTimeout(() => {
             elements.lessonSelectionContainer.style.display = 'none';
@@ -924,6 +925,23 @@ function trackStudentActivity(action, extra) {
 }
 
 trackStudentActivity('visit', { page: window.location.href });
+
+
+
+// ===== شاشات حصرية: لا تظهر شاشات الاختيار (الصفوف/الأقسام/المواد/الدروس) مع الاختبار أو النتيجة =====
+(function enforceExclusiveScreens() {
+    const pick = (ids) => ids.map(id => document.getElementById(id)).filter(Boolean);
+    const selection = pick(['year-selection-container', 'section-selection-container', 'subject-selection-container', 'lesson-selection-container', 'sublesson-selection-container']);
+    const running = pick(['quiz-container', 'results-container']);
+    const shown = (el) => el.style.display !== 'none' && getComputedStyle(el).display !== 'none';
+    function fix() {
+        if (!running.some(shown)) return;
+        selection.forEach(el => { if (el.style.display !== 'none') el.style.display = 'none'; });
+    }
+    const mo = new MutationObserver(fix);
+    selection.concat(running).forEach(el => mo.observe(el, { attributes: true, attributeFilter: ['style'] }));
+    fix();
+})();
 
 // ===== بحث داخل الدروس =====
 (function setupLessonSearch() {
