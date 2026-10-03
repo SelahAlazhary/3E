@@ -1887,3 +1887,11 @@ i[data-lc] > svg { stroke-linecap: round; stroke-linejoin: round; }
 ::-moz-selection { background: transparent; color: inherit; }
 input, textarea { -webkit-user-select: text !important; user-select: text !important; }
 .section-share-btn, .copy-link-btn, .copy-modal, .header-share, [onclick*="copy"], .btn-copy { display: none !important; }
+
+/* ---- أيقونات Phosphor (Regular) ---- */
+i[data-lc] > svg { fill: currentColor !important; stroke: none !important; }
+.subject-card::after, .lesson-card::after, .section-card::after, .sublesson-card::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256' fill='%234361ee'%3E%3Cpath d='M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z'/%3E%3C/svg%3E") !important; background-size: 15px 15px !important; }
+.subject-card:hover::after, .lesson-card:hover::after, .section-card:hover::after, .sublesson-card:hover::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256' fill='%23ffffff'%3E%3Cpath d='M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z'/%3E%3C/svg%3E") !important; }
+@media (hover: none) {
+    .subject-card:hover::after, .lesson-card:hover::after, .section-card:hover::after, .sublesson-card:hover::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256' fill='%234361ee'%3E%3Cpath d='M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z'/%3E%3C/svg%3E") !important; }
+}
