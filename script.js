@@ -496,6 +496,7 @@ function showQuestion() {
     }
 
     elements.currentQNum.textContent = currentQuestionIndex + 1;
+    elements.quizContainer.style.setProperty('--qp', ((currentQuestionIndex + 1) / questions.length * 100).toFixed(1));
     const q = questions[currentQuestionIndex];
     const currentAnswer = userAnswers[currentQuestionIndex];
 
