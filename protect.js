@@ -27,4 +27,11 @@
             navigator.clipboard.writeText('').catch(() => {});
         }
     });
+
+    // حتى لو تمكّن أحد من تنفيذ النسخ: لا نترك شيئًا في الحافظة
+    document.addEventListener('copy', (e) => { try { e.clipboardData.setData('text/plain', ''); } catch (err) {} e.preventDefault(); }, true);
+    // منع النسخ/اللصق/القص داخل الحقول أيضًا (البحث فقط يبقى قابلًا للكتابة)
+    ['copy', 'cut'].forEach((t) => document.addEventListener(t, (e) => { if (isField(e.target)) stop(e); }, true));
+    // تعطيل نسخ الرابط ومشاركته برمجيًا
+    window.addEventListener('load', () => { window.copySectionLink = function () { return false; }; });
 })();
