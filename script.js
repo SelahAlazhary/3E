@@ -234,6 +234,8 @@ function loadData() {
     database.ref('sections').once('value', (snapshot) => {
         sections = [];
         snapshot.forEach(child => { sections.push({ id: child.key, ...child.val() }); });
+        // ترتيب الأقسام حسب الرقم المحدد من لوحة التحكم (بدون رقم = في الآخر)
+        sections.sort((a, b) => (parseInt(a.order, 10) || 9999) - (parseInt(b.order, 10) || 9999));
         // بعد تحميل الأقسام، التحقق من رابط القسم
         checkForSectionLink();
     }).catch(error => console.error('Error loading sections:', error));
