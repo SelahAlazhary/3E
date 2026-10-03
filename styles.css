@@ -1833,3 +1833,14 @@ html.link-locked:not(.link-ready) #link-splash { display: flex !important; }
     }
     .subject-card:active, .lesson-card:active, .section-card:active, .sublesson-card:active { background: rgba(67, 97, 238, 0.06); }
 }
+
+/* ---- تباين الخيار المختار (نص داكن على خلفية فاتحة) ---- */
+.option-btn .option-text, .option-btn.selected .option-text, .option-btn:hover .option-text { color: var(--text-primary) !important; }
+.option-btn.selected { animation: none !important; transform: none !important; }
+.option-btn .option-check, .option-btn.selected .option-check { background: var(--qa) !important; color: #fff !important; }
+.option-btn:not(.selected) .option-check { opacity: 0 !important; }
+.option-btn.selected .option-check { opacity: 1 !important; }
+.option-btn.selected .option-letter { background: var(--qa) !important; color: #fff !important; border-color: var(--qa) !important; }
+.option.selected, .option.selected * { color: var(--text-primary); }
+.option.selected::before { color: #fff !important; }
+.option.selected .option-icon { color: #fff !important; background: var(--qa) !important; }
