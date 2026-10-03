@@ -1844,3 +1844,17 @@ html.link-locked:not(.link-ready) #link-splash { display: flex !important; }
 .option.selected, .option.selected * { color: var(--text-primary); }
 .option.selected::before { color: #fff !important; }
 .option.selected .option-icon { color: #fff !important; background: var(--qa) !important; }
+
+/* ---- منع التحديد والنسخ والطباعة ---- */
+html, body, .container, .container * {
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-drag: none;
+}
+input, textarea, [contenteditable="true"] { -webkit-user-select: text; user-select: text; }
+img { pointer-events: none; -webkit-user-drag: none; }
+.social-icons a, .header-social-icons a, .brand-bar, header .logo-container { pointer-events: auto; }
+header img, .brand-bar img { pointer-events: none; }
+@media print { html, body { display: none !important; } }
+
+.container input, .container textarea, input, textarea { -webkit-user-select: text !important; user-select: text !important; }
