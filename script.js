@@ -197,17 +197,19 @@ function checkForSectionLink() {
                     elements.lessonSelectionContainer.style.display = 'none';
                     elements.sublessonSelectionContainer.style.display = 'none';
                     // تحميل المواد الخاصة بالقسم مباشرة
-                    loadSubjectsForSection(selectedSection);
-                    showToast(`تم التوجيه إلى قسم ${section.name || ''}`);
+                    openLockedSection(selectedSection);
                 } else {
                     showToast('القسم المطلوب غير متوفر حالياً', true);
+                    lockFail('هذا القسم غير متاح حالياً');
                 }
             } else {
                 showToast('القسم المطلوب غير موجود', true);
+                lockFail('هذا الرابط غير صالح');
             }
         }).catch(error => {
             console.error('خطأ في جلب بيانات القسم:', error);
             showToast('حدث خطأ في تحميل القسم المطلوب', true);
+            lockFail('تعذّر تحميل القسم، حدّث الصفحة وحاول مرة أخرى');
         });
         return true;
     }
@@ -654,7 +656,7 @@ function escapeHtml(text) {
 function goBack() {
     // إزالة معامل الرابط من URL عند الرجوع
     const url = new URL(window.location.href);
-    if (url.searchParams.has('section')) {
+    if (!document.documentElement.classList.contains('link-locked') && url.searchParams.has('section')) {
         url.searchParams.delete('section');
         window.history.pushState({}, '', url);
     }
@@ -838,6 +840,61 @@ document.addEventListener('click', (e) => {
     wrap.dataset.filter = btn.dataset.f;
     wrap.querySelectorAll('.rs-seg button').forEach(b => b.classList.toggle('active', b === btn));
 });
+
+
+
+// ===== قفل الرابط على قسمه فقط =====
+// عند الدخول برابط ?section=... يُفتح القسم مباشرة ولا يصل الطالب إلى شاشات الصفوف أو بقية الأقسام.
+const LOCKED_SECTION = new URLSearchParams(window.location.search).get('section');
+
+function openLockedSection(id, tries) {
+    tries = tries || 0;
+    if (!subjects.length && tries < 25) { setTimeout(() => openLockedSection(id, tries + 1), 400); return; }
+    loadSubjectsForSection(id);
+    lockSync();
+}
+
+function lockFail(message) {
+    if (!LOCKED_SECTION) return;
+    if (elements.subjectContainer) {
+        elements.subjectContainer.innerHTML = '<div class="no-questions"><i class="fas fa-info-circle"></i><h3>' + message + '</h3></div>';
+    }
+    if (elements.subjectSelectionContainer) elements.subjectSelectionContainer.style.display = 'block';
+    lockSync();
+}
+
+function lockSync() {
+    if (!LOCKED_SECTION) return;
+    const root = document.documentElement;
+    const shown = (el) => el && el.style.display !== 'none' && getComputedStyle(el).display !== 'none';
+    // لا تُعرض شاشة الصفوف ولا شاشة الأقسام أبدًا
+    [elements.yearSelectionContainer, elements.sectionSelectionContainer].forEach(el => {
+        if (el && el.style.display !== 'none') el.style.display = 'none';
+    });
+    const inner = [elements.subjectSelectionContainer, elements.lessonSelectionContainer, elements.sublessonSelectionContainer, elements.quizContainer, elements.resultsContainer];
+    const anyShown = inner.some(shown);
+    if (anyShown) root.classList.add('link-ready');
+    // لو حاول الرجوع إلى شاشة الأقسام نعيده إلى مواد قسمه
+    if (!anyShown && root.classList.contains('link-ready')) { loadSubjectsForSection(selectedSection || LOCKED_SECTION); }
+    // زر الرجوع لا يظهر عند أعلى مستوى (مواد القسم)
+    if (elements.headerBackBtn) {
+        const atTop = shown(elements.subjectSelectionContainer) && !inner.slice(1).some(shown);
+        const want = atTop ? 'none' : 'flex';
+        if (elements.headerBackBtn.style.display !== want) elements.headerBackBtn.style.display = want;
+    }
+}
+
+if (LOCKED_SECTION) {
+    const mo = new MutationObserver(lockSync);
+    [elements.yearSelectionContainer, elements.sectionSelectionContainer, elements.subjectSelectionContainer, elements.lessonSelectionContainer,
+     elements.sublessonSelectionContainer, elements.quizContainer, elements.resultsContainer, elements.headerBackBtn]
+        .forEach(el => el && mo.observe(el, { attributes: true, attributeFilter: ['style'] }));
+    lockSync();
+    // شبكة أمان: لو لم يُفتح القسم خلال 20 ثانية
+    setTimeout(() => {
+        if (!document.documentElement.classList.contains('link-ready')) lockFail('تعذّر تحميل القسم، حدّث الصفحة وحاول مرة أخرى');
+    }, 20000);
+}
 
 // ===== بحث داخل الدروس =====
 (function setupLessonSearch() {
