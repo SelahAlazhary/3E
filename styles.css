@@ -1338,3 +1338,228 @@ header .header-social-icon:hover, header .theme-toggle:hover { background: rgba(
 
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+
+/* ============================================================
+   الإصدار 2: بطاقات المواد والدروس + شاشة النتيجة (للهاتف أولًا)
+   ============================================================ */
+
+/* ---- بطاقات المواد / الدروس / الأقسام ---- */
+.subject-card, .lesson-card, .section-card, .sublesson-card {
+    display: grid !important;
+    grid-template-columns: 56px minmax(0, 1fr) 34px;
+    grid-template-rows: auto auto;
+    align-items: center; column-gap: 14px; row-gap: 2px;
+    padding: 14px 14px 14px 12px; min-height: 84px;
+    background: var(--card-solid); border: 1px solid var(--line); border-radius: 20px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 22px rgba(15, 23, 42, 0.06);
+    text-align: start; overflow: hidden; position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.subject-card::before, .lesson-card::before, .section-card::before, .sublesson-card::before { display: none !important; }
+.subject-card > i, .lesson-card > i, .section-card > i, .sublesson-card > i {
+    grid-column: 1; grid-row: 1 / span 2;
+    width: 56px; height: 56px; border-radius: 17px; font-size: 23px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--gradient-primary); color: #fff;
+    box-shadow: 0 8px 18px rgba(67, 97, 238, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    -webkit-background-clip: border-box; background-clip: border-box;
+}
+.subject-card > h3, .lesson-card > h3, .section-card > h3, .sublesson-card > h3 {
+    grid-column: 2; grid-row: 1; align-self: end;
+    margin: 0; font-size: 1.04rem; font-weight: 800; line-height: 1.5; color: var(--text-primary);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.subject-card > p, .lesson-card > p, .section-card > p, .sublesson-card > p {
+    grid-column: 2; grid-row: 2; align-self: start;
+    margin: 0; font-size: 0.82rem; line-height: 1.55; color: var(--text-secondary);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.subject-card::after, .lesson-card::after, .section-card::after, .sublesson-card::after {
+    content: "\f053"; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 13px;
+    display: flex !important; align-items: center; justify-content: center;
+    grid-column: 3; grid-row: 1 / span 2; justify-self: end;
+    position: static; width: 34px; height: 34px; border-radius: 50%; transform: none; left: auto;
+    background: rgba(67, 97, 238, 0.10); color: var(--primary); transition: all 0.2s ease;
+}
+.subject-card:hover, .lesson-card:hover, .section-card:hover, .sublesson-card:hover {
+    transform: translateY(-2px); border-color: rgba(67, 97, 238, 0.45);
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06), 0 16px 34px rgba(67, 97, 238, 0.18);
+}
+.subject-card:hover::after, .lesson-card:hover::after, .section-card:hover::after, .sublesson-card:hover::after {
+    background: var(--gradient-primary); color: #fff; transform: translateX(-3px); left: auto;
+}
+.subject-card:active, .lesson-card:active, .section-card:active, .sublesson-card:active { transform: scale(0.985); }
+.subject-card .maint-badge, .lesson-card .maint-badge, .section-card .maint-badge, .sublesson-card .maint-badge { position: absolute; top: 8px; left: 10px; }
+
+/* ---- شاشة النتيجة ---- */
+.results-container {
+    display: none; flex-direction: column; gap: 14px;
+    padding: 18px 14px 24px; background: transparent; border: none; box-shadow: none;
+}
+.results-container[style*="block"] { display: flex !important; }
+
+.score-hero {
+    order: 0; position: relative; overflow: hidden; text-align: center;
+    padding: 28px 18px 22px; border-radius: 26px; color: #fff;
+    background: linear-gradient(160deg, #4361ee 0%, #3a0ca3 100%);
+    box-shadow: 0 18px 40px rgba(58, 12, 163, 0.30);
+}
+.score-hero::before, .score-hero::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.08); pointer-events: none; }
+.score-hero::before { width: 180px; height: 180px; top: -70px; right: -50px; }
+.score-hero::after { width: 130px; height: 130px; bottom: -50px; left: -30px; }
+.score-hero[data-level="great"] { background: linear-gradient(160deg, #10b981 0%, #047857 100%); box-shadow: 0 18px 40px rgba(4, 120, 87, 0.30); }
+.score-hero[data-level="ok"] { background: linear-gradient(160deg, #f59e0b 0%, #b45309 100%); box-shadow: 0 18px 40px rgba(180, 83, 9, 0.28); }
+.score-hero[data-level="low"] { background: linear-gradient(160deg, #f43f5e 0%, #be123c 100%); box-shadow: 0 18px 40px rgba(190, 18, 60, 0.28); }
+.score-ring {
+    --size: 156px; position: relative; z-index: 1;
+    width: var(--size); height: var(--size); margin: 0 auto 16px; border-radius: 50%;
+    background: conic-gradient(#fff calc(var(--pct, 0) * 1%), rgba(255, 255, 255, 0.22) 0);
+    display: flex; align-items: center; justify-content: center;
+}
+.score-ring-inner {
+    width: calc(var(--size) - 22px); height: calc(var(--size) - 22px); border-radius: 50%;
+    background: rgba(15, 23, 42, 0.22); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.15;
+}
+.score-ring-inner b { font-size: 2.5rem; font-weight: 900; letter-spacing: -1px; }
+.score-ring-inner small { font-size: 0.95rem; font-weight: 700; opacity: 0.9; margin-top: 2px; }
+.score-title { position: relative; z-index: 1; font-size: 1.35rem; font-weight: 900; }
+.score-sub { position: relative; z-index: 1; margin-top: 4px; font-size: 0.92rem; opacity: 0.9; }
+
+.score-chips { order: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.score-chip {
+    background: var(--card-solid); border: 1px solid var(--line); border-radius: 18px;
+    padding: 12px 6px; text-align: center; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.score-chip i { display: block; font-size: 16px; color: var(--primary); margin-bottom: 4px; }
+.score-chip b { display: block; font-size: 1.15rem; font-weight: 900; color: var(--text-primary); line-height: 1.3; }
+.score-chip span { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); }
+.score-chip.ok i, .score-chip.ok b { color: #10b981; }
+.score-chip.no i, .score-chip.no b { color: #ef4444; }
+
+/* ---- مراجعة الإجابات ---- */
+.review-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 2px 12px; }
+.review-head h3 { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin: 0; }
+.review-count { font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); }
+.review-count b.ok { color: #10b981; } .review-count b.no { color: #ef4444; }
+.review-list { list-style: none; display: grid; gap: 12px; padding: 0; margin: 0; }
+.review-item {
+    background: var(--card-solid); border: 1px solid var(--line); border-radius: 18px; padding: 14px;
+    border-inline-start: 5px solid #10b981; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.review-item.is-wrong { border-inline-start-color: #ef4444; }
+.review-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.review-num { min-width: 30px; height: 30px; padding: 0 8px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 800; background: var(--light-2); color: var(--primary); }
+.review-state { font-size: 0.8rem; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; background: rgba(16, 185, 129, 0.12); color: #059669; }
+.is-wrong .review-state { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+.review-q { font-size: 1rem; font-weight: 700; line-height: 1.85; color: var(--text-primary); margin-bottom: 10px; }
+.review-ans { display: flex; align-items: flex-start; gap: 8px; padding: 9px 12px; border-radius: 12px; background: rgba(239, 68, 68, 0.08); font-size: 0.92rem; line-height: 1.7; }
+.review-item:not(.is-wrong) .review-ans { background: rgba(16, 185, 129, 0.09); }
+.review-ans + .review-ans { margin-top: 6px; }
+.review-ans.right { background: rgba(16, 185, 129, 0.10) !important; }
+.review-ans .lbl { flex-shrink: 0; font-size: 0.76rem; font-weight: 800; color: var(--text-secondary); padding-top: 2px; }
+.review-ans .val { font-weight: 700; color: var(--text-primary); overflow-wrap: anywhere; }
+
+.results-container .btn-primary, .results-container .restart-btn {
+    order: 3; width: 100%; min-height: 52px; border-radius: 16px; font-weight: 800; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 0;
+}
+.results-container .social-icons { order: 5; justify-content: center; gap: 10px; margin: 6px 0 0; }
+.results-container .social-icons .icon { width: 46px; height: 46px; font-size: 20px; border-radius: 14px; }
+
+@media (min-width: 768px) {
+    .results-container { max-width: 760px; margin-inline: auto; }
+    .score-hero { padding: 36px 24px 28px; }
+}
+
+/* ---- خاص بالموقع الإعدادي ---- */
+.results-container > h2, .results-container > .stats-grid { display: none !important; }
+.results-container > .feedback-box { order: 2; background: transparent; padding: 0; border: none; box-shadow: none; margin: 0; }
+/* بطاقات الدروس (بنية مختلفة) */
+.lesson-card { grid-template-columns: 56px minmax(0, 1fr) auto 34px; grid-template-rows: auto; border-radius: 20px; }
+.lesson-card::after { display: none !important; }
+.lesson-card .lesson-icon { grid-column: 1; width: 56px; height: 56px; border-radius: 17px; font-size: 23px; background: var(--gradient-primary); color: #fff; box-shadow: 0 8px 18px rgba(67, 97, 238, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.28); }
+.lesson-card .lesson-content { grid-column: 2; min-width: 0; }
+.lesson-card .lesson-content h3 { font-size: 1.04rem; font-weight: 800; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.lesson-card .lesson-content p { font-size: 0.8rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.lesson-card .lesson-number { grid-column: 3; width: auto; min-width: 30px; height: 26px; padding: 0 9px; border-radius: 999px; font-size: 0.75rem; background: rgba(67, 97, 238, 0.10); color: var(--primary); }
+.lesson-card .lesson-arrow { grid-column: 4; opacity: 1; transform: none; width: 34px; height: 34px; }
+.lesson-card:hover .lesson-icon { transform: none; }
+.lesson-card:hover { transform: translateY(-2px); }
+.subject-card, .sublesson-card, .section-card { grid-template-columns: 56px minmax(0, 1fr) 34px; }
+
+.results-container > .feedback, .results-container > .feedback-box { max-height: none !important; overflow: visible !important; border: none !important; }
+.results-container > .feedback::before, .results-container > .feedback-box::before { display: none !important; }
+
+/* ---- بحث الدروس ---- */
+.lesson-search {
+    position: relative; display: flex; align-items: center; margin: 0 0 14px;
+}
+.lesson-search > i.fa-search {
+    position: absolute; inset-inline-start: 16px; color: var(--text-tertiary); font-size: 15px; pointer-events: none;
+}
+.lesson-search input {
+    width: 100%; min-height: 50px; padding: 0 46px 0 46px; border-radius: 16px;
+    border: 1.5px solid var(--line); background: var(--light-2); color: var(--text-primary);
+    font-size: 1rem; font-weight: 600; outline: none; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    -webkit-appearance: none; appearance: none;
+}
+.lesson-search input::-webkit-search-cancel-button { display: none; }
+.lesson-search input:focus { background: var(--card-solid); border-color: var(--primary); box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.14); }
+.lesson-search button {
+    position: absolute; inset-inline-end: 8px; width: 34px; height: 34px; border-radius: 50%; border: none;
+    background: rgba(67, 97, 238, 0.10); color: var(--primary); cursor: pointer; display: none;
+    align-items: center; justify-content: center; font-size: 13px;
+}
+.lesson-search.has-value button { display: flex; }
+.lesson-search-empty {
+    flex-direction: column; align-items: center; gap: 8px; padding: 28px 12px; color: var(--text-secondary); font-weight: 700;
+}
+.lesson-search-empty i { font-size: 26px; color: var(--primary); opacity: 0.7; }
+
+/* ---- واجهة التحميل (شاشة كاملة) ---- */
+.quiz-container { animation: none !important; transform: none !important; filter: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.loading-overlay {
+    position: fixed !important; inset: 0 !important; z-index: 9999 !important;
+    flex-direction: column; align-items: center; justify-content: center; gap: 0;
+    padding: 24px; text-align: center; color: #fff; overflow: hidden;
+    background:
+        radial-gradient(circle at 85% 12%, rgba(255, 255, 255, 0.16), transparent 42%),
+        radial-gradient(circle at 10% 92%, rgba(114, 9, 183, 0.55), transparent 48%),
+        linear-gradient(160deg, #4361ee 0%, #3a0ca3 100%) !important;
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+}
+.loading-overlay .rotating-logo, .loading-overlay .splash-logo {
+    width: 112px !important; height: 112px !important; padding: 16px !important; border-radius: 32px !important;
+    background: #fff !important; object-fit: contain; margin-bottom: 26px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28) !important;
+    animation: splashPulse 1.9s ease-in-out infinite !important; transform: none;
+}
+@keyframes splashPulse {
+    0%   { transform: scale(1);    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28), 0 0 0 0 rgba(255, 255, 255, 0.42); }
+    60%  { transform: scale(1.05); box-shadow: 0 22px 46px rgba(0, 0, 0, 0.30), 0 0 0 30px rgba(255, 255, 255, 0); }
+    100% { transform: scale(1);    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28), 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+.loading-overlay .loading-text-splash, .loading-overlay .loading-text {
+    color: #fff !important; background: none !important; -webkit-text-fill-color: #fff;
+    font-size: 1.3rem !important; font-weight: 800 !important; line-height: 1.7; max-width: 320px; margin: 0;
+}
+.loading-overlay .loading-subtext-splash, .loading-overlay .loading-subtext {
+    color: rgba(255, 255, 255, 0.82) !important; font-size: 0.92rem !important; margin-top: 6px !important; font-weight: 600;
+}
+.loading-overlay .loader-dots { display: flex; gap: 8px; margin-top: 22px; justify-content: center; }
+.loading-overlay .loader-dot { width: 10px !important; height: 10px !important; border-radius: 50%; background: #fff !important; opacity: 0.9; }
+.loading-overlay::after {
+    content: ''; position: absolute; bottom: 0; right: 0; height: 4px; width: 38%;
+    background: linear-gradient(90deg, transparent, #fff, transparent); border-radius: 4px;
+    animation: splashBar 1.5s ease-in-out infinite;
+}
+@keyframes splashBar { 0% { transform: translateX(120%); } 100% { transform: translateX(-380%); } }
+@media (prefers-reduced-motion: reduce) { .loading-overlay::after { display: none; } }
+
+.lesson-card.lesson-hidden { display: none !important; }
+/* عناوين الدروس تظهر كاملة بدون اقتطاع */
+.lesson-card > h3, .lesson-card .lesson-content h3 { display: block !important; -webkit-line-clamp: unset !important; overflow: visible !important; }
+.lesson-card > p, .lesson-card .lesson-content p { -webkit-line-clamp: 3; }
+#lesson-search-box ~ #lesson-container .lesson-card, #lesson-search-box ~ .lessons-list .lesson-card, #lesson-search-box ~ .lesson-grid .lesson-card { animation: none !important; opacity: 1 !important; }
