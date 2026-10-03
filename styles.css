@@ -1563,3 +1563,79 @@ header .header-social-icon:hover, header .theme-toggle:hover { background: rgba(
 .lesson-card > h3, .lesson-card .lesson-content h3 { display: block !important; -webkit-line-clamp: unset !important; overflow: visible !important; }
 .lesson-card > p, .lesson-card .lesson-content p { -webkit-line-clamp: 3; }
 #lesson-search-box ~ #lesson-container .lesson-card, #lesson-search-box ~ .lessons-list .lesson-card, #lesson-search-box ~ .lesson-grid .lesson-card { animation: none !important; opacity: 1 !important; }
+
+/* ============================================================
+   شاشة النتيجة — تصميم هادئ ورسمي (الإصدار 3)
+   ============================================================ */
+.results-container { gap: 16px; padding: 16px 0 28px; }
+.rs-summary {
+    --accent: #4361ee; --tint: rgba(67, 97, 238, 0.10);
+    order: 0; background: var(--card-solid); border: 1px solid var(--line); border-radius: 16px;
+    padding: 22px 20px 0; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    border-top: 3px solid var(--accent);
+}
+.rs-summary[data-level="great"] { --accent: #15803d; --tint: rgba(21, 128, 61, 0.10); }
+.rs-summary[data-level="good"]  { --accent: #4361ee; --tint: rgba(67, 97, 238, 0.10); }
+.rs-summary[data-level="ok"]    { --accent: #b45309; --tint: rgba(180, 83, 9, 0.10); }
+.rs-summary[data-level="low"]   { --accent: #b91c1c; --tint: rgba(185, 28, 28, 0.09); }
+.rs-kicker { font-size: 0.82rem; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.2px; }
+.rs-score { display: flex; align-items: baseline; gap: 10px; margin-top: 6px; }
+.rs-num { font-size: 3.4rem; font-weight: 800; line-height: 1; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.rs-of { font-size: 1.05rem; font-weight: 600; color: var(--text-secondary); }
+.rs-pct-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.rs-pct { font-size: 1.15rem; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+.rs-tag { font-size: 0.8rem; font-weight: 700; padding: 3px 10px; border-radius: 6px; color: var(--accent); background: var(--tint); }
+.rs-bar { height: 6px; margin-top: 14px; background: var(--light-3); border-radius: 3px; overflow: hidden; }
+.rs-bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.rs-meta { display: grid; grid-template-columns: repeat(3, 1fr); margin: 20px -20px 0; border-top: 1px solid var(--line); }
+.rs-meta > div { padding: 14px 8px; text-align: center; }
+.rs-meta > div + div { border-inline-start: 1px solid var(--line); }
+.rs-meta dt { font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); }
+.rs-meta dd { margin: 3px 0 0; font-size: 1.3rem; font-weight: 800; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.rs-meta dd.ok { color: #15803d; } .rs-meta dd.no { color: #b91c1c; }
+
+.rs-review { background: var(--card-solid); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.rs-review-head { padding: 16px 16px 12px; border-bottom: 1px solid var(--line); }
+.rs-review-head h3 { margin: 0 0 12px; font-size: 1.02rem; font-weight: 800; color: var(--text-primary); background: none; border: none; padding: 0; }
+.rs-seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--light-2); border-radius: 10px; }
+.rs-seg button {
+    border: none; background: transparent; color: var(--text-secondary); font: inherit; font-size: 0.85rem; font-weight: 700;
+    padding: 8px 4px; border-radius: 7px; cursor: pointer; min-height: 38px;
+}
+.rs-seg button em { font-style: normal; font-weight: 600; opacity: 0.75; margin-inline-start: 3px; font-variant-numeric: tabular-nums; }
+.rs-seg button.active { background: var(--card-solid); color: var(--text-primary); box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12); }
+.rs-list { list-style: none; margin: 0; padding: 0; }
+.rs-item { padding: 16px; border-top: 1px solid var(--line); position: relative; }
+.rs-item:first-child { border-top: none; }
+.rs-item::before { content: ''; position: absolute; inset-block: 16px; inset-inline-start: 0; width: 3px; border-radius: 0 2px 2px 0; background: #15803d; }
+.rs-item.is-wrong::before { background: #b91c1c; }
+.rs-item-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.rs-idx { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
+.rs-state { font-size: 0.78rem; font-weight: 700; color: #15803d; }
+.is-wrong .rs-state { color: #b91c1c; }
+.rs-q { margin: 0 0 12px; font-size: 1rem; font-weight: 700; line-height: 1.85; color: var(--text-primary); }
+.rs-ans { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: baseline; padding: 8px 0; border-top: 1px dashed var(--line); font-size: 0.93rem; line-height: 1.7; }
+.rs-ans span { font-size: 0.78rem; font-weight: 700; color: var(--text-secondary); }
+.rs-ans b { font-weight: 600; color: var(--text-primary); overflow-wrap: anywhere; }
+.is-wrong .rs-ans:not(.rs-right) b { color: #b91c1c; }
+.rs-ans.rs-right b { color: #15803d; font-weight: 700; }
+.is-correct .rs-ans b { color: #15803d; }
+.rs-review[data-filter="wrong"] .rs-item.is-correct,
+.rs-review[data-filter="correct"] .rs-item.is-wrong { display: none; }
+
+.results-container .btn-primary, .results-container .restart-btn {
+    min-height: 50px; border-radius: 12px; font-size: 0.98rem; font-weight: 700; box-shadow: none; background: #4361ee;
+}
+.results-container .social-icons { opacity: 0.9; }
+.results-container .social-icons .icon { width: 42px; height: 42px; font-size: 18px; border-radius: 10px; box-shadow: none; }
+@media (min-width: 768px) { .rs-summary { padding-inline: 28px; } .rs-meta { margin-inline: -28px; } .rs-ans { grid-template-columns: 130px 1fr; } }
+
+/* ---- النتيجة: ألوان أوضح في الوضع الليلي ---- */
+[data-theme="dark"] .rs-summary[data-level="great"] { --accent: #4ade80; --tint: rgba(74, 222, 128, 0.14); }
+[data-theme="dark"] .rs-summary[data-level="good"]  { --accent: #818cf8; --tint: rgba(129, 140, 248, 0.16); }
+[data-theme="dark"] .rs-summary[data-level="ok"]    { --accent: #fbbf24; --tint: rgba(251, 191, 36, 0.14); }
+[data-theme="dark"] .rs-summary[data-level="low"]   { --accent: #f87171; --tint: rgba(248, 113, 113, 0.14); }
+[data-theme="dark"] .rs-meta dd.ok, [data-theme="dark"] .rs-state, [data-theme="dark"] .is-correct .rs-ans b, [data-theme="dark"] .rs-ans.rs-right b { color: #4ade80; }
+[data-theme="dark"] .rs-meta dd.no, [data-theme="dark"] .is-wrong .rs-state, [data-theme="dark"] .is-wrong .rs-ans:not(.rs-right) b { color: #f87171; }
+[data-theme="dark"] .rs-item::before { background: #4ade80; }
+[data-theme="dark"] .rs-item.is-wrong::before { background: #f87171; }

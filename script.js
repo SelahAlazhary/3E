@@ -782,43 +782,61 @@ init();
     }, { passive: true });
 })();
 
-// ===== عرض شاشة النتيجة بتصميم احترافي (شكل فقط) =====
+// ===== عرض شاشة النتيجة =====
 function renderResultsView(score, total, percentage, timeTaken, reviewItems) {
     const rc = document.getElementById('results-container');
     if (!rc) return;
     const wrong = total - score;
     const level = percentage >= 90 ? 'great' : percentage >= 75 ? 'good' : percentage >= 50 ? 'ok' : 'low';
-    const titles = { great: 'أداء ممتاز', good: 'أداء جيد جدًا', ok: 'أداء جيد', low: 'تحتاج إلى مراجعة' };
-    let hero = document.getElementById('score-hero');
-    if (!hero) { hero = document.createElement('div'); hero.id = 'score-hero'; hero.className = 'score-hero'; rc.insertBefore(hero, rc.firstChild); }
-    let chips = document.getElementById('score-chips');
-    if (!chips) { chips = document.createElement('div'); chips.id = 'score-chips'; chips.className = 'score-chips'; hero.after(chips); }
-    hero.dataset.level = level;
-    hero.style.setProperty('--pct', percentage);
-    hero.innerHTML = `
-        <div class="score-ring"><div class="score-ring-inner"><b>${percentage}%</b><small dir="ltr">${score} / ${total}</small></div></div>
-        <div class="score-title">${titles[level]}</div>
-        <div class="score-sub">أجبت بشكل صحيح على ${score} من ${total} سؤالًا</div>`;
-    chips.innerHTML = `
-        <div class="score-chip ok"><i class="fas fa-check-circle"></i><b>${score}</b><span>صحيحة</span></div>
-        <div class="score-chip no"><i class="fas fa-times-circle"></i><b>${wrong}</b><span>خاطئة</span></div>
-        <div class="score-chip"><i class="fas fa-clock"></i><b>${timeTaken}</b><span>الوقت</span></div>`;
+    const labels = { great: 'ممتاز', good: 'جيد جدًا', ok: 'جيد', low: 'يحتاج إلى مراجعة' };
+    ['score-hero', 'score-chips', 'rs-summary'].forEach(id => { const old = document.getElementById(id); if (old) old.remove(); });
+    const sec = document.createElement('section');
+    sec.id = 'rs-summary';
+    sec.className = 'rs-summary';
+    sec.dataset.level = level;
+    sec.innerHTML = `
+        <div class="rs-kicker">نتيجة الاختبار</div>
+        <div class="rs-score"><span class="rs-num">${score}</span><span class="rs-of">من ${total}</span></div>
+        <div class="rs-pct-row"><span class="rs-pct" dir="ltr">${percentage}%</span><span class="rs-tag">${labels[level]}</span></div>
+        <div class="rs-bar" role="progressbar" aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100"><i style="width:${percentage}%"></i></div>
+        <dl class="rs-meta">
+            <div><dt>صحيحة</dt><dd class="ok">${score}</dd></div>
+            <div><dt>خاطئة</dt><dd class="no">${wrong}</dd></div>
+            <div><dt>الوقت</dt><dd dir="ltr">${timeTaken}</dd></div>
+        </dl>`;
+    rc.insertBefore(sec, rc.firstChild);
     window.scrollTo(0, 0);
+    requestAnimationFrame(() => window.scrollTo(0, 0));
 }
 
 function buildReviewHTML(items, score, total) {
     const rows = items.map((it, i) => `
-        <li class="review-item ${it.ok ? 'is-correct' : 'is-wrong'}">
-            <div class="review-top">
-                <span class="review-num">${i + 1}</span>
-                <span class="review-state"><i class="fas fa-${it.ok ? 'check-circle' : 'times-circle'}"></i> ${it.ok ? 'إجابة صحيحة' : 'إجابة خاطئة'}</span>
-            </div>
-            <div class="review-q">${it.q}</div>
-            <div class="review-ans"><span class="lbl">إجابتك</span><span class="val">${it.mine}</span></div>
-            ${it.ok ? '' : `<div class="review-ans right"><span class="lbl">الإجابة الصحيحة</span><span class="val">${it.right}</span></div>`}
+        <li class="rs-item ${it.ok ? 'is-correct' : 'is-wrong'}">
+            <div class="rs-item-head"><span class="rs-idx">${String(i + 1).padStart(2, '0')}</span><span class="rs-state">${it.ok ? 'صحيحة' : 'خاطئة'}</span></div>
+            <p class="rs-q">${it.q}</p>
+            <div class="rs-ans"><span>إجابتك</span><b>${it.mine}</b></div>
+            ${it.ok ? '' : `<div class="rs-ans rs-right"><span>الإجابة الصحيحة</span><b>${it.right}</b></div>`}
         </li>`).join('');
-    return `<div class="review-head"><h3>مراجعة الإجابات</h3><span class="review-count"><b class="ok">${score}</b> صحيحة · <b class="no">${total - score}</b> خاطئة</span></div><ol class="review-list">${rows}</ol>`;
+    return `<div class="rs-review" data-filter="all">
+        <div class="rs-review-head">
+            <h3>مراجعة الإجابات</h3>
+            <div class="rs-seg" role="tablist">
+                <button type="button" class="active" data-f="all">الكل <em>${total}</em></button>
+                <button type="button" data-f="wrong">الخاطئة <em>${total - score}</em></button>
+                <button type="button" data-f="correct">الصحيحة <em>${score}</em></button>
+            </div>
+        </div>
+        <ol class="rs-list">${rows}</ol>
+    </div>`;
 }
+
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest && e.target.closest('.rs-seg button');
+    if (!btn) return;
+    const wrap = btn.closest('.rs-review');
+    wrap.dataset.filter = btn.dataset.f;
+    wrap.querySelectorAll('.rs-seg button').forEach(b => b.classList.toggle('active', b === btn));
+});
 
 // ===== بحث داخل الدروس =====
 (function setupLessonSearch() {
